@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Color Diff Tool</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── 헤더 ──────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <h1>Video Color Diff Tool</h1>
+    <p class="subtitle">두 영상의 색상 차이를 픽셀 단위로 분석합니다</p>
+  </header>
+
+  <!-- ── 파일 로드 바 (항상 표시) ──────────────────────────────────── -->
+  <div class="load-bar">
+
+    <div class="load-dropzone" id="dropzone-a">
+      <svg class="load-upload-icon" viewBox="0 0 32 32" fill="none">
+        <path d="M16 4v18M16 4l-6 6M16 4l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 24v2a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="load-info">
+        <span class="load-slot-label">영상 A</span>
+        <span class="load-filename" id="filename-a">드래그 또는 클릭하여 선택</span>
+      </div>
+      <svg class="load-check" id="check-a" viewBox="0 0 20 20" fill="currentColor" hidden>
+        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/>
+      </svg>
+      <input type="file" id="file-input-a" accept="video/*,image/*" hidden />
+    </div>
+
+    <div class="load-center">
+      <p class="status-text" id="status-text">두 파일을 로드하세요</p>
+      <button class="btn-compare" id="btn-compare" disabled>비교 시작</button>
+    </div>
+
+    <div class="load-dropzone" id="dropzone-b">
+      <svg class="load-upload-icon" viewBox="0 0 32 32" fill="none">
+        <path d="M16 4v18M16 4l-6 6M16 4l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 24v2a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="load-info">
+        <span class="load-slot-label">영상 B</span>
+        <span class="load-filename" id="filename-b">드래그 또는 클릭하여 선택</span>
+      </div>
+      <svg class="load-check" id="check-b" viewBox="0 0 20 20" fill="currentColor" hidden>
+        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd"/>
+      </svg>
+      <input type="file" id="file-input-b" accept="video/*,image/*" hidden />
+    </div>
+
+  </div>
+
+  <section class="compare-section" id="compare-section">
+    <div class="res-warning" id="res-warning" hidden>
+      <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+        <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-.75 3.5h1.5v5h-1.5v-5ZM8 11a.875.875 0 1 1 0 1.75A.875.875 0 0 1 8 11Z"/>
+      </svg>
+      <span id="res-warning-msg"></span>
+    </div>
+    <div class="compare-toolbar" id="compare-toolbar">
+      <div class="toolbar-group">
+        <button class="btn-diff-toggle active" id="btn-diff-toggle" title="픽셀 비교 ON / OFF">비교 ON</button>
+      </div>
+      <div class="toolbar-divider"></div>
+      <div class="toolbar-group">
+        <span class="toolbar-label">뷰 모드</span>
+        <div class="mode-buttons" role="group">
+          <button class="btn-mode active" data-mode="diff">차이 보기</button>
+          <button class="btn-mode" data-mode="sidebyside">나란히 보기</button>
+          <button class="btn-mode" data-mode="overlay">오버레이</button>
+          <button class="btn-mode" data-mode="slider">슬라이더</button>
+        </div>
+      </div>
+      <div class="toolbar-group">
+        <label class="ctrl-label"><span>임계값</span><span class="ctrl-val" id="threshold-val">10</span></label>
+        <input type="range" class="ctrl-range" id="threshold-range" min="0" max="255" value="10" />
+      </div>
+      <div class="toolbar-group">
+        <label class="ctrl-label" for="color-picker">강조색</label>
+        <input type="color" class="ctrl-color" id="color-picker" value="#FF0000" />
+      </div>
+      <div class="toolbar-spacer"></div>
+      <div class="toolbar-group">
+        <button class="btn-export" id="btn-save-png">PNG</button>
+        <button class="btn-export" id="btn-save-csv">CSV</button>
+      </div>
+      <div class="toolbar-group">
+        <button class="btn-playback" id="btn-play">
+          <svg id="icon-play" viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.34-5.89a1.5 1.5 0 0 0 0-2.54L6.3 2.84Z"/></svg>
+          <svg id="icon-pause" viewBox="0 0 20 20" fill="currentColor" width="13" height="13" hidden><path fill-rule="evenodd" d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5Zm7 0a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z" clip-rule="evenodd"/></svg>
+          재생
+        </button>
+      </div>
+    </div>
+    <div class="playback-bar" id="playback-bar" hidden>
+      <button class="btn-frame" id="btn-prev-frame">◀</button>
+      <span class="time-display" id="time-display">00:00.000 / 00:00.000</span>
+      <button class="btn-frame" id="btn-next-frame">▶</button>
+      <input type="range" class="timeline-range" id="timeline-range" min="0" max="10000" value="0" step="1" />
+      <select class="speed-select" id="speed-select">
+        <option value="0.25">0.25x</option>
+        <option value="0.5">0.5x</option>
+        <option value="1" selected>1x</option>
+        <option value="2">2x</option>
+      </select>
+    </div>
+    <div class="canvas-viewport" id="canvas-viewport">
+      <div class="canvas-placeholder" id="canvas-placeholder">
+        <svg viewBox="0 0 64 64" fill="none" width="52" height="52" opacity="0.4">
+          <rect x="3" y="11" width="58" height="42" rx="4" stroke="currentColor" stroke-width="2"/>
+          <circle cx="32" cy="36" r="9" stroke="currentColor" stroke-width="2"/>
+          <path d="M29 36l5-3v6l-5-3Z" fill="currentColor"/>
+        </svg>
+        <p>두 파일을 로드하고<br><strong>비교 시작</strong>을 누르세요</p>
+      </div>
+      <canvas id="view-canvas"></canvas>
+      <div class="diff-badge" id="diff-badge">— %</div>
+      <div class="slider-hint" id="slider-hint" hidden>← 드래그하여 이동 →</div>
+    </div>
+  </section>
+
+  <div id="media-pool">
+    <video id="preview-a" muted preload="metadata" playsinline></video>
+    <video id="preview-b" muted preload="metadata" playsinline></video>
+    <img id="preview-img-a" alt="" />
+    <img id="preview-img-b" alt="" />
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
