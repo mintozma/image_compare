@@ -1,0 +1,36 @@
+{
+  "name": "video-color-diff-tool",
+  "version": "1.0.0",
+  "description": "두 영상/이미지의 색상 차이를 픽셀 단위로 분석하는 도구",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.mintozma.video-color-diff",
+    "productName": "VideoColorDiff",
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false,
+      "signDlls": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerLanguages": ["ko_KR", "en_US"],
+      "language": "1042"
+    },
+    "files": [
+      "index.html",
+      "main.js",
+      "style.css",
+      "worker.js",
+      "electron-main.js"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}

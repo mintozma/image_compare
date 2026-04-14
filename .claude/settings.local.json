@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir C:\\\\work\\\\vibecoding\\\\beyondcompare:*)",
+      "Bash(cmd:*)",
+      "mcp__github__get_me",
+      "mcp__github__create_repository",
+      "Bash(node -e ':*)",
+      "Bash(echo \"done: $?\")",
+      "Bash(node:*)",
+      "mcp__github__push_files",
+      "Bash(rm -f _mainjs.txt _stylecss.txt files.json)",
+      "Bash(rm -rf .git)",
+      "Bash(git remote:*)",
+      "Bash(git fetch:*)",
+      "Bash(npm run:*)",
+      "Bash(CSC_IDENTITY_AUTO_DISCOVERY=false npm run dist)"
+    ]
+  }
+}
